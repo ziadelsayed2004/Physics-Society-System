@@ -1,0 +1,32 @@
+{
+  "name": "centers-groups-management",
+  "version": "1.0.0",
+  "description": "Full-stack Centers Management System",
+  "main": "server/server.js",
+  "scripts": {
+    "install-all": "npm install && cd client && npm install && cd ../server && npm install",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm start --prefix client\"",
+    "start": "node server/server.js",
+    "build": "cd client && npm run build",
+    "setup": "npm run install-all && cd server && npm run create-admin",
+    "create-admin": "cd server && npm run create-admin"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "education",
+    "management",
+    "attendance",
+    "grades"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "^5.3.8",
+    "formik": "^2.4.6",
+    "react-bootstrap": "^2.10.10",
+    "xlsx": "^0.18.5",
+    "yup": "^1.7.1"
+  }
+}
