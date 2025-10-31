@@ -41,7 +41,7 @@ const StudentSearch = () => {
           
           <SearchBar 
             onSearch={handleSearch}
-            placeholder="ابحث بالاسم، رقم الطالب، رقم ولي الأمر، أو الكود..."
+            placeholder="ابحث بالاسم، رقم الطالب، ولي الأمر، الكود..."
             loading={loading}
           />
 

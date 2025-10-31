@@ -14,6 +14,10 @@
   color: #eedeff;
 }
 
+.main-content .content-wrapper .container-fluid h2 {
+  color: #eedeff;
+}
+
 .dashboard-subtitle {
   color: #a1b3cd;
   font-size: 1rem;

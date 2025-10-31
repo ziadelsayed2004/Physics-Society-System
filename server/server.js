@@ -28,7 +28,7 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Routes
+// API Routes
 app.use('/api/auth', authRoutes);
 // More specific routes first
 app.use('/api/reports', reportRoutes);
@@ -41,25 +41,41 @@ app.use('/api', adminRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'Centers Management System API is running',
     timestamp: new Date().toISOString()
   });
 });
 
+
+// =================================================================
+//  >>>>> START: الكود الجديد لخدمة الفرونت إند <<<<<
+// =================================================================
+
+// The '..' is crucial because this script runs from inside the 'server' folder,
+// and we need to go up one level to find the 'client' folder.
+app.use(express.static(path.join(__dirname, '..', 'client/build')));
+
+// For any request that doesn't match an API route, send back the React app's
+// main index.html file. This is the key for React Router to work.
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'client/build', 'index.html'));
+});
+
+// =================================================================
+//  >>>>> END: الكود الجديد لخدمة الفرونت إند <<<<<
+// =================================================================
+
+
 // Error handling middleware
 app.use((error, req, res, next) => {
   console.error('Error:', error);
-  res.status(500).json({ 
+  res.status(500).json({
     message: 'Internal server error',
     error: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
   });
 });
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
 
 // Connect to MongoDB and start server
 const connectDB = async () => {
