@@ -11,8 +11,12 @@
   box-shadow: -2px 0 20px rgba(0, 0, 0, 0.2);
   direction: rtl;
   z-index: 1000;
-  transition: transform 0.3s ease-in-out;
+  transition:
+    transform 0.3s ease-in-out,
+    height 0.4s cubic-bezier(0.45, 0, 0.55, 1);
+  will-change: height;
 }
+
 
 @media (max-width: 1024px) {
   .sidebar {
