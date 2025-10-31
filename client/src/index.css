@@ -100,6 +100,11 @@ body {
   box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
 }
 
+.table-responsive {
+  border-radius: 12px;
+  border: 1.5px solid #ddd;
+}
+
 .table {
   width: 100%;
   border-collapse: collapse;
