@@ -101,7 +101,6 @@
   }
 
   .sidebar.open {
-    max-height: 100vh;
     transform: translateX(0);
   }
 
