@@ -339,19 +339,20 @@ const processAttendanceAndIssues = async (row, session, type, center) => {
 
 // Absence handling is now done automatically by markRemainingStudentsAsAbsent
 
-const EXPECTED_GRADE_HEADERS = ["رقم وليامر", "رقم الطالب", "اسم الطالب", "كود الطالب", "الدرجة"];
+const EXPECTED_GRADE_HEADERS = ["رقم الـ ID", "اسم الطالب", "الدرجة"];
 
-const processGrades = async (row, session, center) => {
+const processGrades = async (row, session, center, logs) => {
+  logs.push({ message: 'Processing grade row', row });
   try {
     if (!center) {
       throw new Error('يجب تحديد السنتر / المجموعة لرفع الدرجات');
     }
     // Extract values from row using exact Arabic headers
     const grade = row['الدرجة']?.toString().trim();
-    const id = row['كود الطالب']?.toString().trim();
-    const studentPhone = row['رقم الطالب']?.toString().trim();
-    const parentPhone = row['رقم وليامر']?.toString().trim();
+    const id = row['رقم الـ ID']?.toString().trim();
     const studentName = row['اسم الطالب']?.toString().trim();
+
+    logs.push({ message: 'Extracted grade data', id, studentName, grade });
 
     // Validate required fields
     if (!grade && grade !== '0') {
@@ -369,7 +370,7 @@ const processGrades = async (row, session, center) => {
 
     const student = await Student.findOne({ studentId });
     if (!student) {
-      await logOperation('Student not found', { id: studentId });
+      logs.push({ message: 'Student not found', id: studentId });
       return { error: true, id: studentId, message: 'Student not found' };
     }
 
@@ -379,7 +380,7 @@ const processGrades = async (row, session, center) => {
         { student: student._id, session: session._id },
         {
           grade,
-          center: student.mainCenter, // Always use student's main center
+          center: center, // Use the center from the upload form
           mainCenter: student.mainCenter
         },
         {
@@ -393,26 +394,15 @@ const processGrades = async (row, session, center) => {
         throw new Error('Failed to save grade record');
       }
 
-      await logOperation('Grade processed successfully', {
-        id: studentId,
-        grade,
-        recordId: record._id
-      });
+      logs.push({ message: 'Grade processed successfully', id: studentId, grade, recordId: record._id });
 
       return { action: 'processed', id: studentId };
     } catch (error) {
-      await logOperation('Failed to save grade', {
-        error: error.message,
-        id: studentId,
-        grade
-      });
+      logs.push({ message: 'Failed to save grade', error: error.message, id: studentId, grade });
       throw error;
     }
   } catch (error) {
-    await logOperation('Error processing grade', {
-      error: error.message,
-      row: row
-    });
+    logs.push({ message: 'Error processing grade', error: error.message, row });
     return { error: true, id: (row && (row['ID'] || row.ID)) || 'unknown', message: error.message };
   }
 };
@@ -444,6 +434,7 @@ const validateSession = async (sessionId) => {
 // Cleanup handled above - removing duplicate declaration
 
 const handleCsvUpload = async (file, uploadType, sessionId = null, center = null) => {
+  const logs = [];
   await logOperation('Starting upload process (xlsx/csv compatible)', {
     fileName: file.originalname,
     uploadType,
@@ -544,6 +535,29 @@ const handleCsvUpload = async (file, uploadType, sessionId = null, center = null
           `Note: Headers must match exactly (check for extra spaces)`
         );
       }
+    } else if (uploadType === 'grades') {
+      const missingHeaders = EXPECTED_GRADE_HEADERS.filter(header => 
+        !receivedHeaders.some(h => h.trim() === header.trim())
+      );
+      
+      await logOperation('Validating grade headers', {
+        receivedHeaders,
+        expectedHeaders: EXPECTED_GRADE_HEADERS,
+        missingHeaders
+      });
+      
+      if (missingHeaders.length > 0) {
+        if (fs.existsSync(file.path)) {
+          await fs.promises.unlink(file.path);
+        }
+        throw new Error(
+          `Missing required grade headers:\n` +
+          `${missingHeaders.join(', ')}\n\n` +
+          `Required headers are: ${EXPECTED_GRADE_HEADERS.join(', ')}\n` +
+          `Found: ${receivedHeaders.join(', ')}\n\n` +
+          `Note: Headers must match exactly (check for extra spaces)`
+        );
+      }
     }
 
     // Convert sheet to array of objects using the first row as headers
@@ -584,7 +598,7 @@ const handleCsvUpload = async (file, uploadType, sessionId = null, center = null
             result = await processAttendanceAndIssues(row, session, 'issues', center);
             break;
           case 'grades':
-            result = await processGrades(row, session, center);
+            result = await processGrades(row, session, center, logs);
             break;
           default:
             throw new Error('Invalid upload type');
@@ -633,6 +647,7 @@ const handleCsvUpload = async (file, uploadType, sessionId = null, center = null
       created, 
       updated, 
       errors: errors.length > 0 ? errors : null, 
+      logs,
       message: `Successfully processed ${processed} records (${created} created, ${updated} updated)` 
     }; 
   } catch (error) {

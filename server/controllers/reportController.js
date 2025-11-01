@@ -92,6 +92,7 @@ const getGradesReport = async (req, res) => {
     
     const records = await Record.find(filter)
       .populate('student', 'studentId fullName phoneNumber parentPhoneNumber')
+      .populate('session', 'weekNumber sessionType fullMark')
       .sort({ 'session.weekNumber': -1 })
       .lean();
 

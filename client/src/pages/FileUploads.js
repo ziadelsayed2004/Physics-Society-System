@@ -6,6 +6,7 @@ const FileUploads = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [logs, setLogs] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [centers, setCenters] = useState([]);
 
@@ -52,18 +53,20 @@ const FileUploads = () => {
       [type]: { ...prev[type], loading: true }
     }));
     setError('');
+    setLogs([]);
 
     try {
+      let response;
       switch (type) {
         case 'students':
           if (!uploadState.center) throw new Error('يجب اختيار السنتر / المجموعة قبل رفع بيانات الطلاب');
-          await adminAPI.uploadStudents(uploadState.file, uploadState.center);
+          response = await adminAPI.uploadStudents(uploadState.file, uploadState.center);
           break;
         case 'attendance':
           if (!uploadState.sessionId || !uploadState.center) {
             throw new Error('يجب اختيار الأسبوع والسنتر / المجموعة');
           }
-          await adminAPI.uploadAttendance(
+          response = await adminAPI.uploadAttendance(
             uploadState.file, 
             uploadState.sessionId, 
             uploadState.center
@@ -74,7 +77,7 @@ const FileUploads = () => {
           if (!uploadState.sessionId || !uploadState.center) {
             throw new Error('يجب اختيار الأسبوع والسنتر / المجموعة');
           }
-          await adminAPI.uploadGrades(
+          response = await adminAPI.uploadGrades(
             uploadState.file, 
             uploadState.sessionId,
             uploadState.center
@@ -84,7 +87,7 @@ const FileUploads = () => {
           if (!uploadState.sessionId || !uploadState.center) {
             throw new Error('يجب اختيار الأسبوع والسنتر / المجموعة');
           }
-          await adminAPI.uploadIssues(
+          response = await adminAPI.uploadIssues(
             uploadState.file, 
             uploadState.sessionId,
             uploadState.center
@@ -92,6 +95,10 @@ const FileUploads = () => {
           break;
         default:
           throw new Error('Invalid upload type');
+      }
+
+      if (response.data.details.logs) {
+        setLogs(response.data.details.logs);
       }
 
       setMessage(`${type.charAt(0).toUpperCase() + type.slice(1)} uploaded successfully`);
@@ -249,6 +256,13 @@ const FileUploads = () => {
         <div className="alert alert-danger alert-dismissible fade show" role="alert">
           {error}
           <button type="button" className="btn-close" onClick={() => setError('')} />
+        </div>
+      )}
+
+      {logs.length > 0 && (
+        <div className="alert alert-info">
+          <h5>Logs:</h5>
+          <pre>{JSON.stringify(logs, null, 2)}</pre>
         </div>
       )}
 
