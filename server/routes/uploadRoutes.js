@@ -119,8 +119,7 @@ router.post('/csv', upload.single('file'), async (req, res) => {
         created: result.created || 0,
         updated: result.updated || 0,
         processed: result.processed || 0,
-        errors: result.errors || [],
-        logs: result.logs || []
+        errors: result.errors || []
       },
       uploadType,
       timestamp: new Date().toISOString()

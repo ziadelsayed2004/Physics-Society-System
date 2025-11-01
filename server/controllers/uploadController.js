@@ -341,8 +341,8 @@ const processAttendanceAndIssues = async (row, session, type, center) => {
 
 const EXPECTED_GRADE_HEADERS = ["رقم الـ ID", "اسم الطالب", "الدرجة"];
 
-const processGrades = async (row, session, center, logs) => {
-  logs.push({ message: 'Processing grade row', row });
+const processGrades = async (row, session, center) => {
+  await logOperation('Processing grade row', { row });
   try {
     if (!center) {
       throw new Error('يجب تحديد السنتر / المجموعة لرفع الدرجات');
@@ -352,7 +352,7 @@ const processGrades = async (row, session, center, logs) => {
     const id = row['رقم الـ ID']?.toString().trim();
     const studentName = row['اسم الطالب']?.toString().trim();
 
-    logs.push({ message: 'Extracted grade data', id, studentName, grade });
+    await logOperation('Extracted grade data', { id, studentName, grade });
 
     // Validate required fields
     if (!grade && grade !== '0') {
@@ -370,7 +370,7 @@ const processGrades = async (row, session, center, logs) => {
 
     const student = await Student.findOne({ studentId });
     if (!student) {
-      logs.push({ message: 'Student not found', id: studentId });
+      await logOperation('Student not found', { id: studentId });
       return { error: true, id: studentId, message: 'Student not found' };
     }
 
@@ -394,15 +394,26 @@ const processGrades = async (row, session, center, logs) => {
         throw new Error('Failed to save grade record');
       }
 
-      logs.push({ message: 'Grade processed successfully', id: studentId, grade, recordId: record._id });
+      await logOperation('Grade processed successfully', {
+        id: studentId,
+        grade,
+        recordId: record._id
+      });
 
       return { action: 'processed', id: studentId };
     } catch (error) {
-      logs.push({ message: 'Failed to save grade', error: error.message, id: studentId, grade });
+      await logOperation('Failed to save grade', {
+        error: error.message,
+        id: studentId,
+        grade
+      });
       throw error;
     }
   } catch (error) {
-    logs.push({ message: 'Error processing grade', error: error.message, row });
+    await logOperation('Error processing grade', {
+      error: error.message,
+      row: row
+    });
     return { error: true, id: (row && (row['ID'] || row.ID)) || 'unknown', message: error.message };
   }
 };
@@ -434,7 +445,6 @@ const validateSession = async (sessionId) => {
 // Cleanup handled above - removing duplicate declaration
 
 const handleCsvUpload = async (file, uploadType, sessionId = null, center = null) => {
-  const logs = [];
   await logOperation('Starting upload process (xlsx/csv compatible)', {
     fileName: file.originalname,
     uploadType,
@@ -598,7 +608,7 @@ const handleCsvUpload = async (file, uploadType, sessionId = null, center = null
             result = await processAttendanceAndIssues(row, session, 'issues', center);
             break;
           case 'grades':
-            result = await processGrades(row, session, center, logs);
+            result = await processGrades(row, session, center);
             break;
           default:
             throw new Error('Invalid upload type');
@@ -647,7 +657,6 @@ const handleCsvUpload = async (file, uploadType, sessionId = null, center = null
       created, 
       updated, 
       errors: errors.length > 0 ? errors : null, 
-      logs,
       message: `Successfully processed ${processed} records (${created} created, ${updated} updated)` 
     }; 
   } catch (error) {

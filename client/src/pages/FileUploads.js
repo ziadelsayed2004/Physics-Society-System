@@ -6,7 +6,6 @@ const FileUploads = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [logs, setLogs] = useState([]);
   const [sessions, setSessions] = useState([]);
   const [centers, setCenters] = useState([]);
 
@@ -53,7 +52,6 @@ const FileUploads = () => {
       [type]: { ...prev[type], loading: true }
     }));
     setError('');
-    setLogs([]);
 
     try {
       let response;
@@ -95,10 +93,6 @@ const FileUploads = () => {
           break;
         default:
           throw new Error('Invalid upload type');
-      }
-
-      if (response.data.details.logs) {
-        setLogs(response.data.details.logs);
       }
 
       setMessage(`${type.charAt(0).toUpperCase() + type.slice(1)} uploaded successfully`);
@@ -256,13 +250,6 @@ const FileUploads = () => {
         <div className="alert alert-danger alert-dismissible fade show" role="alert">
           {error}
           <button type="button" className="btn-close" onClick={() => setError('')} />
-        </div>
-      )}
-
-      {logs.length > 0 && (
-        <div className="alert alert-info">
-          <h5>Logs:</h5>
-          <pre>{JSON.stringify(logs, null, 2)}</pre>
         </div>
       )}
 
