@@ -26,7 +26,9 @@ const SessionManagement = () => {
       const response = await staffAPI.getSessions();
       setSessions(response.data.sessions);
     } catch (error) {
-      setError('خطأ في تحميل الحصص: ' + (error.response?.data?.message || error.message));
+      if (error.response?.status !== 401) {
+        setError('خطأ في تحميل الحصص: ' + (error.response?.data?.message || error.message));
+      }
     }
   };
 
@@ -41,7 +43,9 @@ const SessionManagement = () => {
       setSessionForm({ weekNumber: '', sessionType: 'عادية', fullMark: 10 });
       loadSessions();
     } catch (error) {
-      setError(error.response?.data?.message || 'فشل إنشاء الحصة');
+      if (error.response?.status !== 401) {
+        setError(error.response?.data?.message || 'فشل إنشاء الحصة');
+      }
     } finally {
       setLoading(false);
     }
@@ -199,7 +203,9 @@ const SessionManagement = () => {
             setSessionToDelete(null);
             loadSessions();
           } catch (err) {
-            setError(err.response?.data?.message || err.message || 'فشل حذف الحصة');
+            if (err.response?.status !== 401) {
+              setError(err.response?.data?.message || err.message || 'فشل حذف الحصة');
+            }
             setConfirmShow(false);
             setSessionToDelete(null);
           }

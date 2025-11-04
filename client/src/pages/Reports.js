@@ -54,7 +54,9 @@ const Reports = () => {
       
       setReportData(response.data.data || response.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'حدث خطأ أثناء توليد التقرير');
+      if (err.response?.status !== 401) {
+        setError(err.response?.data?.message || 'حدث خطأ أثناء توليد التقرير');
+      }
     } finally {
       setLoading(false);
     }
@@ -66,8 +68,10 @@ const Reports = () => {
       console.log('Sessions response:', response.data);
       setSessions(response.data.sessions || []);
     } catch (error) {
-      console.error('Error loading sessions:', error);
-      setError('خطأ في تحميل الحصص: ' + (error.response?.data?.message || error.message));
+      if (error.response?.status !== 401) {
+        console.error('Error loading sessions:', error);
+        setError('خطأ في تحميل الحصص: ' + (error.response?.data?.message || error.message));
+      }
     }
   };
 
@@ -77,8 +81,10 @@ const Reports = () => {
       console.log('Centers response:', response.data);
       setCenters(response.data.centers || []);
     } catch (error) {
-      console.error('Error loading centers:', error);
-      setError('خطأ في تحميل السناتر/المجموعات: ' + (error.response?.data?.message || error.message));
+      if (error.response?.status !== 401) {
+        console.error('Error loading centers:', error);
+        setError('خطأ في تحميل السناتر/المجموعات: ' + (error.response?.data?.message || error.message));
+      }
     }
   };
 
@@ -131,7 +137,9 @@ const Reports = () => {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      setError('خطأ في تصدير التقرير');
+      if (err.response?.status !== 401) {
+        setError('خطأ في تصدير التقرير');
+      }
     }
   };
 

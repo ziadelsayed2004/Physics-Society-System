@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -12,6 +12,8 @@ import SessionManagement from './pages/SessionManagement';
 import StudentSearch from './pages/StudentSearch';
 import StudentProfilePage from './pages/StudentProfilePage';
 import Reports from './pages/Reports';
+import SessionExpiredModal from './components/SessionExpiredModal';
+import { setShowSessionExpiredModal } from './services/api-interceptor';
 
 const AppRoutes = () => {
   // useAuth hook is available through ProtectedRoute; no need to destructure here
@@ -83,11 +85,25 @@ const AppRoutes = () => {
 };
 
 const App = () => {
+  const [sessionExpired, setSessionExpired] = useState(false);
+
+  useEffect(() => {
+    setShowSessionExpiredModal(() => {
+      setSessionExpired(true);
+    });
+  }, []);
+
+  const handleCloseModal = () => {
+    setSessionExpired(false);
+    window.location.href = '/login';
+  };
+
   return (
     <AuthProvider>
       <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <div className="App">
           <AppRoutes />
+          <SessionExpiredModal show={sessionExpired} onClose={handleCloseModal} />
         </div>
       </Router>
     </AuthProvider>

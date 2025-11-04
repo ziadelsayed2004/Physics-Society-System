@@ -24,18 +24,7 @@ api.interceptors.request.use(
   }
 );
 
-// Add response interceptor to handle auth errors
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
+
 
 // Auth API
 export const authAPI = {
