@@ -35,7 +35,7 @@ const StudentProfile = ({ student, onBack, onStudentUpdate, onStudentDelete }) =
       windowWidth: input.scrollWidth,
       windowHeight: input.scrollHeight
     }).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png', 1.0);
+      const imgData = canvas.toDataURL('image/jpeg', 0.8);
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -49,7 +49,7 @@ const StudentProfile = ({ student, onBack, onStudentUpdate, onStudentDelete }) =
         height = pdfHeight;
       }
 
-      pdf.addImage(imgData, 'PNG', 0, yPosition, pdfWidth, height);
+      pdf.addImage(imgData, 'JPEG', 0, yPosition, pdfWidth, height);
 
       // Add more pages if needed
       let remainingHeight = canvasHeight / ratio - height;
@@ -57,7 +57,7 @@ const StudentProfile = ({ student, onBack, onStudentUpdate, onStudentDelete }) =
         pdf.addPage();
         yPosition = -pdfHeight + remainingHeight;
         const currentHeight = remainingHeight > pdfHeight ? pdfHeight : remainingHeight;
-        pdf.addImage(imgData, 'PNG', 0, yPosition, pdfWidth, currentHeight);
+        pdf.addImage(imgData, 'JPEG', 0, yPosition, pdfWidth, currentHeight);
         remainingHeight -= pdfHeight;
       }
 

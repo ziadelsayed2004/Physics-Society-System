@@ -9,6 +9,7 @@ const Reports = () => {
   const [sessions, setSessions] = useState([]);
   const [centers, setCenters] = useState([]);
   const [reportData, setReportData] = useState([]);
+  const [isReportGenerated, setIsReportGenerated] = useState(false);
   
   // Filters
   const [filters, setFilters] = useState({
@@ -22,7 +23,13 @@ const Reports = () => {
     loadCenters();
   }, []);
 
+  useEffect(() => {
+    setReportData([]);
+    setIsReportGenerated(false);
+  }, [activeTab]);
+
   const handleGenerateReport = useCallback(async () => {
+    setIsReportGenerated(true);
     setLoading(true);
     setError('');
     
@@ -52,10 +59,6 @@ const Reports = () => {
       setLoading(false);
     }
   }, [activeTab, filters]);
-
-  useEffect(() => {
-    handleGenerateReport();
-  }, [handleGenerateReport]);
 
   const loadSessions = async () => {
     try {
@@ -276,8 +279,10 @@ const Reports = () => {
               columns={getReportColumns()}
               emptyMessage="لا توجد بيانات لهذا التقرير"
             />
-          ) : (
-            !loading && <p>لا توجد بيانات لعرضها.</p>
+          ) : isReportGenerated && !loading ? (
+            <p>لا توجد بيانات لعرضها.</p>
+          ) : !loading && (
+            <p>حدد سنتر وحصة لعرض التقرير</p>
           )}
         </div>
       </div>
