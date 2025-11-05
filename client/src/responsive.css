@@ -110,7 +110,7 @@
 
   .main-content {
     margin-right: 0;
-    min-width: 0; /* Prevent wide tables from breaking the layout */
+    min-width: 0;
   }
 
   .sidebar-backdrop {
