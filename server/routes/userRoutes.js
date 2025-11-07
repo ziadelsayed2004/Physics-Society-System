@@ -103,20 +103,20 @@ router.put('/:id', async (req, res) => {
       if (existingUser) {
         return res.status(400).json({ message: 'Username already exists' });
       }
+      user.username = username;
     }
 
-    // Prepare update object
-    const updateData = {};
-    if (username) updateData.username = username;
-    if (role) updateData.role = role;
-    if (password) updateData.password = password;
+    if (role) {
+      user.role = role;
+    }
 
-    // Update user
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    ).select('-password');
+    if (password) {
+      user.password = password;
+    }
+
+    // Save the updated user
+    const updatedUser = await user.save();
+
 
     res.json({
       message: 'User updated successfully',
