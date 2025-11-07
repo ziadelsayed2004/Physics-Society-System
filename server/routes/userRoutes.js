@@ -81,7 +81,6 @@ router.get('/', async (req, res) => {
 // PUT /api/users/:id - Update user details
 router.put('/:id', async (req, res) => {
   try {
-    console.log('Request Body:', req.body);
     const { id } = req.params;
     const { username, role, password } = req.body;
 
