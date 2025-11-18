@@ -7,10 +7,10 @@ const Session = require('../models/Session');
 // Header mappings for bilingual support
 const HEADER_MAPPINGS = {
   students: {
-    'ID': ['رقم الـ ID'],
+    'ID': ['كود الطالب'],
     'Student Name': ['اسم الطالب'],
     'Student Phone': ['رقم الطالب'],
-    'Parent Phone': ['رقم ولي الأمر'],
+    'Parent Phone': ['رقم ولي الامر'],
     'Gender': ['النوع'],
     'Division': ['الشعبة']
   },
@@ -23,7 +23,7 @@ const HEADER_MAPPINGS = {
 };
 
 const EXPECTED_STUDENT_HEADERS_EN = ["ID", "Student Name", "Student Phone", "Parent Phone", "Gender", "Division"];
-const EXPECTED_STUDENT_HEADERS_AR = ["رقم الـ ID", "اسم الطالب", "رقم الطالب", "رقم ولي الأمر", "النوع", "الشعبة"];
+const EXPECTED_STUDENT_HEADERS_AR = ["كود الطالب", "اسم الطالب", "رقم الطالب", "رقم ولي الامر", "النوع", "الشعبة"];
 
 // Headers for attendance/absence sheets in exact order
 const EXPECTED_ATTENDANCE_HEADERS = ["رقم ولي الامر", "رقم الطالب", "اسم الطالب", "كود الطالب"];
@@ -339,7 +339,7 @@ const processAttendanceAndIssues = async (row, session, type, center) => {
 
 // Absence handling is now done automatically by markRemainingStudentsAsAbsent
 
-const EXPECTED_GRADE_HEADERS = ["رقم الـ ID", "اسم الطالب", "الدرجة"];
+const EXPECTED_GRADE_HEADERS = ["كود الطالب", "اسم الطالب", "الدرجة"];
 
 const processGrades = async (row, session, center) => {
   await logOperation('Processing grade row', { row });
@@ -349,7 +349,7 @@ const processGrades = async (row, session, center) => {
     }
     // Extract values from row using exact Arabic headers
     const grade = row['الدرجة']?.toString().trim();
-    const id = row['رقم الـ ID']?.toString().trim();
+    const id = row['كود الطالب']?.toString().trim();
     const studentName = row['اسم الطالب']?.toString().trim();
 
     await logOperation('Extracted grade data', { id, studentName, grade });
